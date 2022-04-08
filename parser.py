@@ -1,4 +1,6 @@
 import datetime
+import string
+from unittest import result
 import requests
 import pandas as pd
 from pprint import pprint
@@ -10,8 +12,8 @@ def get_pushshift_data(after, before, sub, keyword):
 
   print(url)
   
-  request = requests.get(url, params={"after": after, "before": before, "subreddit": sub, "q": keyword, "size": 100})
-  
+  request = requests.get(url, params={"after": after, "before": before, "subreddit": sub, "q": keyword, "size": 1})
+  ##print(request)
   return request.json()
 
 
@@ -37,7 +39,7 @@ timeStart = int(timeStart)
 timeEnd = int(timeEnd)
 
 sub = "uberdrivers" #input("What subreddit would you like to seach in?: ")
-keyword = "depressed|depression|depressing" #input("What keyword are you searching for?: ")
+keyword = "depressed|depression|depressing|" #input("What keyword are you searching for?: ")
 
 # posts is a list of dictionaries, where each dictionary represents one post
 # this contains all the data we got from the reddit API about the post with out comments
@@ -57,8 +59,9 @@ for post in posts:
     # for each of the posts, we do another request that fetches the 
     # comments descending from that specific post (including comments-on-comments, because that's what "link_id" gives you)
     request = requests.get('https://api.pushshift.io/reddit/search/comment/',
-                          params={"link_id": post["id"], "sort": "score:desc", "size": 100})
+                          params={"link_id": post["id"], "sort": "score:desc", "size": 10})
     replies = request.json()["data"]
+    ##print(replies)
   except Exception as e:
     print(f"Request exception: {e}")
     replies = []
@@ -99,5 +102,7 @@ for column_name in desired_columns:
 # make a new copy of the dataframe with only the desired columns in it (leaving out the others)
 specific_columns_df = whole_df[desired_columns]
 
-specific_columns_df.to_csv("reddit_data.csv")
-print(specific_columns_df)
+key = keyword.split("|")
+
+specific_columns_df.to_csv("%s%d-%d%s.csv" %(sub,beginYear,endYear,key[0]))
+##print(specific_columns_df)
