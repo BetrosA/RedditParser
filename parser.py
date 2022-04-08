@@ -1,6 +1,5 @@
 import datetime
 import string
-from unittest import result
 import requests
 import pandas as pd
 from pprint import pprint
